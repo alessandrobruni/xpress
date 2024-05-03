@@ -1,15 +1,18 @@
 const express = require('express');
-//non si usa import express from 'espress'; perche siamo nel server side
-//nella front end react side verrà utilizzato import
+
+//manages the strategies for user authentications
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy; //is the specific strategy
+
 
 const app = express();
-//dentro un progetto posso avere diverse app express()
-//ma nella stragrande maggioranza viene usato un singola app
-// tutti i route che regitreremo saranno associati a questa app
 
-//ecco un route handler 
-app.get('/', (req,res) => {
-    res.send({hi: 'there'});
-})
+//init passport, authenticate user with Google
+passport.use(new GoogleStrategy());
+// whe have to sign in to google API to register our application 
+// and create our ClienID and ClientSecret
+//create keys file in a config folder, save the client ID
 
-app.listen(4433);
+
+const PORT = process.env.PORT || 4433;
+app.listen(PORT);
