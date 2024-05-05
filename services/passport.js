@@ -1,10 +1,16 @@
 //manages the strategies for user authentications
 const passport = require('passport');
-const GoogleStrategy = require('passport-google-oauth20').Strategy; //is the specific strategy
+// Ensure that you require the Google authentication strategy in your Node.js application where you set up passport.js:
+const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy; //is the specific strategy
 // whe have to sign in to google API to register our application 
 // and create our ClienID and ClientSecret
 //create keys file in a config folder, save the client ID
 const keys = require('../config/keys');
+
+//use schema mongoose
+const mongoose = require('mongoose');
+const User = mongoose.model('users');
+
 
 //init passport, authenticate user with Google
 // giving the options details
@@ -14,14 +20,18 @@ passport.use(
         clientSecret: keys.googleClientSecret,
         callbackURL: '/auth/google/callback'
     },
-        (accessToken,) => {
-            console.log(accessToken);
-        }),
-
     (accessToken, refreshtoken, profile, done) => {
-        console.log('access Token', accessToken);
-        console.log('refresh token', refreshtoken);
         console.log('profile', profile);
-        console.log('done', done);
-    }
+        new User({ googleId: profile.id}).save();
+    })
 );
+
+//session mng
+passport.serializeUser((user,done) => {
+    done(null,user.id);
+})
+passport.deserializeUser((id,done) => {
+    User.findById(id).then( user =>
+        done(null,user)
+    );
+})
